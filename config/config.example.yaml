@@ -1,0 +1,21 @@
+# configuration for the security automation foundation
+
+project:
+  name: security_automation_foundation
+  environment: lab
+
+input:
+  approved_targets_file: approved_targets.txt
+  allow_only_approved: true
+
+logging:
+  enabled: true
+  format: structured
+  log_file: evidence/run.log
+
+execution:
+  generate_run_id: true
+  local_only: true
+
+review:
+  human_review_required: true
