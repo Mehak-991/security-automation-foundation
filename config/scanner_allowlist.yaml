@@ -1,0 +1,15 @@
+# Permitted scanner configuration for the local/lab automation workflow
+
+scanner:
+  name: nmap
+  executable: nmap
+
+  # Only these scanner options are allowed by the adapter.
+  scan_type: "-sT"
+  dns_resolution: "-n"
+  ports: "1-1000"
+
+  timeout_seconds: 30
+
+  # Scanner output is written only under this controlled directory.
+  output_directory: "evidence/runs"
