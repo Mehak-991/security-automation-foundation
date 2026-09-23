@@ -1,0 +1,5 @@
+{
+  "findings": [
+    {
+      "source_record_id": "BAD-001",
+      "title": "Broken JSON"

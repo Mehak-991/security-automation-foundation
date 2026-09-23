@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<findings>
+    <finding>
+        <source_record_id>XML-001</source_record_id>
+        <title>Missing Security Header</title>
+        <asset>127.0.0.1</asset>
+        <endpoint>/</endpoint>
+        <severity>Medium</severity>
+        <cvss>5.3</cvss>
+        <cwe>CWE-693</cwe>
+        <evidence>The HTTP response does not include the expected security header.</evidence>
+        <impact>Missing browser security controls can increase exposure to certain client-side attacks.</impact>
+        <remediation>Configure the required security headers at the application or web-server layer.</remediation>
+        <references>https://cwe.mitre.org/data/definitions/693.html</references>
+        <status>Open</status>
+    </finding>
+    <finding>
+        <source_record_id>XML-002</source_record_id>
+        <title>Exposed Debug Information</title>
+        <asset>127.0.0.1</asset>
+        <endpoint>/debug</endpoint>
+        <severity>Low</severity>
+        <cvss>3.7</cvss>
+        <cwe>CWE-215</cwe>
+        <evidence>The synthetic debug endpoint exposes implementation details in its response.</evidence>
+        <impact>Exposed debug information can provide useful details to an attacker during reconnaissance.</impact>
+        <remediation>Disable debug output in non-development environments and restrict diagnostic endpoints.</remediation>
+        <references>https://cwe.mitre.org/data/definitions/215.html</references>
+        <status>Needs Review</status>
+    </finding>
+</findings>

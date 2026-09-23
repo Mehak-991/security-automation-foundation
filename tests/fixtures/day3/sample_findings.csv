@@ -1,0 +1,2 @@
+source_record_id,title,asset,endpoint,severity,cvss,cwe,evidence,impact,remediation,references,status
+CSV-001,Insecure CORS Configuration,127.0.0.1,/api/data,Medium,6.1,CWE-942,"The synthetic API response allows an overly broad cross-origin policy.","A permissive cross-origin policy may allow unintended origins to access API responses.","Restrict allowed origins to trusted domains and review credential handling.","https://cwe.mitre.org/data/definitions/942.html",Open

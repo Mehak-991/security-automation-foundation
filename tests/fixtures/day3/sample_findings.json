@@ -1,0 +1,36 @@
+{
+  "findings": [
+    {
+      "source_record_id": "JSON-001",
+      "title": "Reflected XSS in Search Parameter",
+      "asset": "127.0.0.1",
+      "endpoint": "/search?q=test",
+      "severity": "High",
+      "cvss": 8.2,
+      "cwe": "CWE-79",
+      "evidence": "The search parameter is reflected into the response without adequate output encoding.",
+      "impact": "An attacker may execute JavaScript in a victim's browser through a crafted search URL.",
+      "remediation": "Apply context-aware output encoding and validate input before rendering it.",
+      "references": [
+        "https://cwe.mitre.org/data/definitions/79.html"
+      ],
+      "status": "Open"
+    },
+    {
+      "source_record_id": "JSON-002",
+      "title": "Weak Authentication Configuration",
+      "asset": "127.0.0.1",
+      "endpoint": "/rest/user/login",
+      "severity": "Medium",
+      "cvss": 6.5,
+      "cwe": "CWE-287",
+      "evidence": "The authentication flow accepts weak password configuration in the synthetic test scenario.",
+      "impact": "Weak authentication controls can increase the risk of unauthorized account access.",
+      "remediation": "Apply stronger password requirements and appropriate authentication controls.",
+      "references": [
+        "https://cwe.mitre.org/data/definitions/287.html"
+      ],
+      "status": "Open"
+    }
+  ]
+}

@@ -2,43 +2,46 @@
 
 ## Project Overview
 
-This project is the foundation for a controlled security automation workflow.
+This project is a controlled security automation foundation for authorized
+local/lab security testing.
 
-The project was started with basic input validation, configuration, Run IDs,
-and structured logging. It now extends that foundation with a controlled
-Nmap scanner adapter for authorized local/lab use.
+The project started with basic configuration, approved-target validation,
+Run ID generation, and structured logging. It was then extended with a safe
+Nmap scanner adapter and now includes parser and normalization components for
+processing scanner findings from multiple data formats.
 
-The main goal is to keep scanner execution bounded, testable, auditable, and
-separate from unrestricted command execution.
+The main goal is to keep the workflow controlled, testable, traceable, and
+auditable while avoiding unrestricted command execution.
 
 ## Current Capabilities
 
 The project currently provides:
 
-- a clean repository structure
-- an approved-targets list
+- approved-target validation
 - YAML-based project configuration
 - scanner allow-list configuration
-- configuration validation
-- approved-input validation
 - Run ID generation
 - structured JSON audit logging
-- a controlled Nmap scanner adapter
+- controlled Nmap scanner execution
 - fixed scanner command construction
 - execution timeout protection
-- Nmap tool version capture
-- stdout and stderr capture
-- controlled evidence output paths
+- Nmap version capture
+- controlled evidence output
+- JSON, XML, and CSV parsing
+- canonical security finding normalization
+- JSON Schema validation
+- malformed-input handling
+- missing-field validation
+- duplicate finding handling
+- traceability IDs
 - automated unit tests
-- local/lab-only execution rules
-- documented scanner safety controls
-- a sample Nmap output fixture for repeatable testing
+- local/lab execution scope documentation
 
 ## Day 1 - Foundation
 
-Day 1 established the basic execution boundary for the project.
+Day 1 established the basic execution boundary.
 
-The foundation check:
+The foundation component:
 
 1. loads the YAML configuration
 2. loads the approved-targets file
@@ -47,9 +50,9 @@ The foundation check:
 5. records the validation result in structured JSON logging
 
 The foundation check is validation-only and does not perform scanning or
-connect to the target.
+connect to targets.
 
-### Current Approved Targets
+### Approved Targets
 
 The current approved targets are:
 
@@ -60,7 +63,7 @@ A target that is not present in `approved_targets.txt` is rejected.
 
 ## Day 2 - Scanner Adapter and Safe Execution
 
-Day 2 extends the foundation with a controlled Nmap scanner adapter.
+Day 2 added a controlled Nmap scanner adapter.
 
 The adapter:
 
@@ -74,7 +77,7 @@ The adapter:
 - records the process return code
 - records timeout status
 - writes scanner evidence under `evidence/runs/`
-- writes structured scanner execution events to `evidence/run.log`
+- writes structured execution events to `evidence/run.log`
 
 ### Controlled Command Format
 
@@ -87,28 +90,11 @@ nmap -sT -n -p 1-1000 <approved-target>
 The scanner options are controlled by the adapter and configuration rather than
 being supplied as arbitrary command-line arguments.
 
-## Safety Controls
+### Day 2 Safety Controls
 
 Scanner execution is restricted to explicitly approved targets.
 
-For example:
-
-```text
-127.0.0.1
-```
-
-is currently approved and can proceed to scanner execution.
-
-An unapproved target such as:
-
-```text
-192.0.2.10
-```
-
-is rejected before the scanner subprocess is started.
-
-The automated test suite also verifies that the scanner subprocess is not
-called when an unapproved target is supplied.
+An unapproved target is rejected before the scanner subprocess is started.
 
 Additional controls include:
 
@@ -123,34 +109,155 @@ Detailed safety controls are documented in:
 
 `docs/scanner_adapter_safety.md`
 
-## Evidence and Logging
+## Day 3 - Output Parsers and Canonical Normalization
 
-Successful scanner executions create JSON evidence files under:
+Day 3 extends the workflow after scanner execution.
+
+The Day 3 pipeline is:
+
+```text
+JSON / XML / CSV
+       |
+       v
+     Parser
+       |
+       v
+Raw Source Records
+       |
+       v
+ Canonical Normalizer
+       |
+       v
+Deduplication
+       |
+       v
+Traceability
+       |
+       v
+JSON Schema Validation
+       |
+       v
+Normalized Findings
+```
+
+### Supported Input Formats
+
+The parser layer currently supports:
+
+- JSON
+- XML
+- CSV
+
+The Day 3 fixtures contain:
+
+```text
+JSON → 2 records
+XML  → 2 records
+CSV  → 1 record
+-----------------
+Total → 5 records
+```
+
+### Canonical Finding Structure
+
+Each normalized finding uses a common structure containing:
+
+- title
+- asset
+- endpoint
+- severity
+- CVSS
+- CWE
+- evidence
+- impact
+- remediation
+- references
+- status
+- traceability IDs
+- source record information
+
+### Traceability
+
+Each source record receives a traceability identifier.
+
+Current example format:
+
+```text
+TRC-JSON-001
+TRC-JSON-002
+TRC-XML-001
+TRC-XML-002
+TRC-CSV-001
+```
+
+The source record is preserved with the normalized finding so that the
+normalized result can be traced back to its original input.
+
+### Duplicate Handling
+
+Duplicate findings are detected using the finding title, asset, and endpoint.
+
+When duplicate findings are merged, the normalizer preserves the source
+traceability IDs and source records.
+
+### Validation
+
+The normalized findings are validated against:
+
+`schemas/finding.schema.json`
+
+The current five fixture findings are all schema-valid:
+
+```text
+Validated findings: 5
+Valid findings: 5
+Schema validation: PASS
+```
+
+## Error Handling
+
+The parser and normalizer explicitly handle invalid input.
+
+Current tests cover:
+
+- malformed JSON
+- malformed XML
+- missing required fields
+- invalid CVSS values
+
+Invalid input is rejected with a clear parsing or normalization error rather
+than being silently accepted.
+
+## Evidence and Reports
+
+Day 3 generated normalized output and validation reports under:
+
+```text
+reports/day3/
+```
+
+The directory contains the scripts and generated validation artifacts used to
+demonstrate the parser and normalization workflow.
+
+Important files include:
+
+- `export_normalized.py`
+- `validate_normalized.py`
+- `generate_validation_report.py`
+- `normalized_findings.json`
+- `validation_report.json`
+
+The scanner execution evidence from Day 2 is stored under:
 
 ```text
 evidence/runs/
 ```
 
-Each scanner execution record includes information such as:
-
-- timestamp
-- Run ID
-- target
-- command
-- return code
-- timeout status
-- Nmap version
-- stdout
-- stderr
-
-Structured scanner execution events are written to:
+Structured execution and audit events are stored in:
 
 ```text
 evidence/run.log
 ```
-
-Generated runtime evidence and log files are treated as execution artifacts
-and are excluded from source control where appropriate.
 
 ## Configuration
 
@@ -177,7 +284,7 @@ The scanner configuration is:
 
 `config/scanner_allowlist.yaml`
 
-The current scanner configuration defines:
+Current scanner settings include:
 
 ```yaml
 scanner:
@@ -208,11 +315,17 @@ security_automation_foundation/
 |   `-- scanner_allowlist.yaml
 |
 |-- adapters/
+|   |-- .gitkeep
 |   |-- base_adapter.py
 |   `-- nmap_adapter.py
 |
 |-- parsers/
-|   `-- .gitkeep
+|   |-- .gitkeep
+|   |-- output_parsers.py
+|   `-- normalizer.py
+|
+|-- schemas/
+|   `-- finding.schema.json
 |
 |-- evidence/
 |   |-- run.log
@@ -220,14 +333,28 @@ security_automation_foundation/
 |       `-- <generated scan evidence>.json
 |
 |-- reports/
-|   `-- .gitkeep
+|   |-- .gitkeep
+|   `-- day3/
+|       |-- export_normalized.py
+|       |-- generate_validation_report.py
+|       |-- normalized_findings.json
+|       `-- validate_normalized.py
 |
 |-- docs/
 |   `-- scanner_adapter_safety.md
 |
 `-- tests/
     |-- fixtures/
-    |   `-- nmap_localhost_sample.txt
+    |   |-- nmap_localhost_sample.txt
+    |   `-- day3/
+    |       |-- malformed.json
+    |       |-- malformed.xml
+    |       |-- sample_findings.csv
+    |       |-- sample_findings.json
+    |       `-- sample_findings.xml
+    |-- test_day3_duplicates.py
+    |-- test_day3_errors.py
+    |-- test_day3_parsers.py
     |-- test_foundation_check.py
     `-- test_nmap_adapter.py
 ```
@@ -236,22 +363,28 @@ security_automation_foundation/
 
 | Path | Purpose |
 |---|---|
-| `README.md` | Project overview, setup information, structure, and validation summary |
-| `approved_targets.txt` | List of explicitly approved targets |
-| `app/foundation_check.py` | Validates project configuration and approved input |
+| `app/foundation_check.py` | Validates project configuration and approved targets |
 | `app/audit_logger.py` | Writes structured JSON audit events |
-| `config/config.example.yaml` | Example project configuration |
+| `config/config.example.yaml` | Main project configuration example |
 | `config/scanner_allowlist.yaml` | Controlled Nmap scanner configuration |
 | `adapters/base_adapter.py` | Common scanner adapter interface and result model |
 | `adapters/nmap_adapter.py` | Controlled Nmap scanner implementation |
-| `parsers/` | Reserved for future scanner output parsers |
+| `parsers/output_parsers.py` | JSON, XML, and CSV parser implementations |
+| `parsers/normalizer.py` | Canonical finding normalization and deduplication |
+| `schemas/finding.schema.json` | Canonical security finding JSON Schema |
+| `approved_targets.txt` | Explicitly approved targets |
 | `evidence/run.log` | Structured execution audit log |
-| `evidence/runs/` | Generated scanner evidence files |
-| `reports/` | Reserved for future report generation |
-| `docs/scanner_adapter_safety.md` | Scanner execution safety controls and limitations |
-| `tests/test_foundation_check.py` | Day 1 automated tests |
+| `evidence/runs/` | Generated scanner evidence |
+| `reports/day3/export_normalized.py` | Exports normalized findings |
+| `reports/day3/validate_normalized.py` | Validates findings against the schema |
+| `reports/day3/generate_validation_report.py` | Generates the Day 3 validation report |
+| `docs/scanner_adapter_safety.md` | Scanner safety controls and limitations |
+| `tests/test_foundation_check.py` | Day 1 foundation tests |
 | `tests/test_nmap_adapter.py` | Day 2 scanner adapter tests |
-| `tests/fixtures/` | Sample input/output data for repeatable testing |
+| `tests/test_day3_parsers.py` | Successful parser tests |
+| `tests/test_day3_errors.py` | Malformed and invalid-input tests |
+| `tests/test_day3_duplicates.py` | Duplicate handling tests |
+| `tests/fixtures/` | Repeatable test fixtures |
 
 ## Testing
 
@@ -276,67 +409,79 @@ Day 2 tests cover:
 - timeout handling
 - controlled evidence directory validation
 
-A sample Nmap output fixture is also included:
+### Day 3 Tests
 
-`tests/fixtures/nmap_localhost_sample.txt`
+Day 3 tests cover:
+
+- JSON parsing
+- XML parsing
+- CSV parsing
+- preservation of raw source records
+- malformed JSON rejection
+- malformed XML rejection
+- missing required field rejection
+- invalid CVSS rejection
+- duplicate finding handling
+- traceability preservation
+
+### Current Test Result
 
 The complete project test suite currently passes:
 
 ```text
-9 passed
+18 passed
 ```
 
-## Validation Evidence
+## Validation Summary
 
-### Day 1 Validation
+### Day 1
 
-The foundation component was tested with:
+- foundation configuration validation completed
+- approved-target validation completed
+- Run ID generation completed
+- structured logging completed
+- automated tests passed
 
-- approved target: `127.0.0.1`
-- unapproved target: `192.0.2.10`
+### Day 2
 
-The approved target was accepted and the unapproved target was rejected.
+- scanner allow-list completed
+- Nmap adapter implemented
+- approved target execution verified
+- unapproved target rejection verified
+- timeout handling implemented
+- Nmap version capture implemented
+- controlled evidence output implemented
+- audit logging integrated
+- safety documentation completed
+- automated tests passed
 
-### Day 2 Validation
+### Day 3
 
-A real Nmap execution was performed against the approved local target:
+- JSON parser implemented
+- XML parser implemented
+- CSV parser implemented
+- five source records processed
+- five canonical findings generated
+- JSON Schema validation completed
+- five findings validated successfully
+- traceability IDs preserved
+- malformed-input handling implemented
+- missing-field validation implemented
+- invalid CVSS handling implemented
+- duplicate handling implemented
+- validation report generated
+- automated test suite passed
+
+## Current Status
+
+The repository currently contains the foundation, scanner adapter, parser,
+normalizer, validation, and testing components completed across Days 1–3.
+
+Current complete test result:
 
 ```text
-127.0.0.1
+18 passed
 ```
-
-The controlled command was:
-
-```text
-nmap -sT -n -p 1-1000 127.0.0.1
-```
-
-The execution completed successfully with:
-
-- return code: `0`
-- timeout: `False`
-- Nmap version: `7.99`
-
-The scan result was saved as JSON evidence under:
-
-```text
-evidence/runs/
-```
-
-The scanner execution was also recorded in:
-
-```text
-evidence/run.log
-```
-
-The unapproved-target test confirmed that:
-
-```text
-192.0.2.10
-```
-
-was rejected before scanner execution, and no evidence file was created for
-that rejected run.
 
 ## Scope and Limitations
 
@@ -345,37 +490,7 @@ This project is intended for authorized local/lab security automation.
 The current implementation is deliberately limited and does not provide
 unrestricted network scanning or arbitrary command execution.
 
-The scanner adapter uses fixed command construction, an explicit
-target allow-list, a fixed timeout, and controlled evidence paths. These
-controls are intended to keep the current workflow bounded and auditable.
-
-## Current Status
-
-### Day 1
-
-- Foundation repository structure completed
-- Configuration validation completed
-- Approved-target validation completed
-- Run ID generation completed
-- Structured logging completed
-- Automated tests passing
-
-### Day 2
-
-- Scanner allow-list configuration completed
-- Scanner adapter interface completed
-- Nmap adapter implemented
-- Approved-target enforcement completed
-- Safe command construction completed
-- Timeout protection implemented
-- Nmap version capture implemented
-- Controlled evidence output implemented
-- Structured audit logging integrated
-- Safety documentation completed
-- Unit tests completed
-
-Current complete test result:
-
-```text
-9 passed
-```
+Scanner execution is bounded by an approved-target allow-list, controlled
+command construction, timeout protection, and controlled evidence paths.
+Parser and normalization components are designed to reject malformed or
+incomplete data rather than silently accepting it.

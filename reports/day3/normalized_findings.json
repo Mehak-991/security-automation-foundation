@@ -1,0 +1,201 @@
+{
+  "schema_version": "1.0",
+  "source_record_count": 5,
+  "normalized_finding_count": 5,
+  "findings": [
+    {
+      "title": "Reflected XSS in Search Parameter",
+      "asset": "127.0.0.1",
+      "endpoint": "/search?q=test",
+      "severity": "High",
+      "cvss": 8.2,
+      "cwe": "CWE-79",
+      "evidence": "The search parameter is reflected into the response without adequate output encoding.",
+      "impact": "An attacker may execute JavaScript in a victim's browser through a crafted search URL.",
+      "remediation": "Apply context-aware output encoding and validate input before rendering it.",
+      "references": [
+        "https://cwe.mitre.org/data/definitions/79.html"
+      ],
+      "status": "Open",
+      "traceability_ids": [
+        "TRC-JSON-001"
+      ],
+      "sources": [
+        {
+          "format": "JSON",
+          "record_id": "JSON-001",
+          "raw_record": {
+            "source_record_id": "JSON-001",
+            "title": "Reflected XSS in Search Parameter",
+            "asset": "127.0.0.1",
+            "endpoint": "/search?q=test",
+            "severity": "High",
+            "cvss": 8.2,
+            "cwe": "CWE-79",
+            "evidence": "The search parameter is reflected into the response without adequate output encoding.",
+            "impact": "An attacker may execute JavaScript in a victim's browser through a crafted search URL.",
+            "remediation": "Apply context-aware output encoding and validate input before rendering it.",
+            "references": [
+              "https://cwe.mitre.org/data/definitions/79.html"
+            ],
+            "status": "Open"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Weak Authentication Configuration",
+      "asset": "127.0.0.1",
+      "endpoint": "/rest/user/login",
+      "severity": "Medium",
+      "cvss": 6.5,
+      "cwe": "CWE-287",
+      "evidence": "The authentication flow accepts weak password configuration in the synthetic test scenario.",
+      "impact": "Weak authentication controls can increase the risk of unauthorized account access.",
+      "remediation": "Apply stronger password requirements and appropriate authentication controls.",
+      "references": [
+        "https://cwe.mitre.org/data/definitions/287.html"
+      ],
+      "status": "Open",
+      "traceability_ids": [
+        "TRC-JSON-002"
+      ],
+      "sources": [
+        {
+          "format": "JSON",
+          "record_id": "JSON-002",
+          "raw_record": {
+            "source_record_id": "JSON-002",
+            "title": "Weak Authentication Configuration",
+            "asset": "127.0.0.1",
+            "endpoint": "/rest/user/login",
+            "severity": "Medium",
+            "cvss": 6.5,
+            "cwe": "CWE-287",
+            "evidence": "The authentication flow accepts weak password configuration in the synthetic test scenario.",
+            "impact": "Weak authentication controls can increase the risk of unauthorized account access.",
+            "remediation": "Apply stronger password requirements and appropriate authentication controls.",
+            "references": [
+              "https://cwe.mitre.org/data/definitions/287.html"
+            ],
+            "status": "Open"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Missing Security Header",
+      "asset": "127.0.0.1",
+      "endpoint": "/",
+      "severity": "Medium",
+      "cvss": 5.3,
+      "cwe": "CWE-693",
+      "evidence": "The HTTP response does not include the expected security header.",
+      "impact": "Missing browser security controls can increase exposure to certain client-side attacks.",
+      "remediation": "Configure the required security headers at the application or web-server layer.",
+      "references": [
+        "https://cwe.mitre.org/data/definitions/693.html"
+      ],
+      "status": "Open",
+      "traceability_ids": [
+        "TRC-XML-001"
+      ],
+      "sources": [
+        {
+          "format": "XML",
+          "record_id": "XML-001",
+          "raw_record": {
+            "source_record_id": "XML-001",
+            "title": "Missing Security Header",
+            "asset": "127.0.0.1",
+            "endpoint": "/",
+            "severity": "Medium",
+            "cvss": "5.3",
+            "cwe": "CWE-693",
+            "evidence": "The HTTP response does not include the expected security header.",
+            "impact": "Missing browser security controls can increase exposure to certain client-side attacks.",
+            "remediation": "Configure the required security headers at the application or web-server layer.",
+            "references": "https://cwe.mitre.org/data/definitions/693.html",
+            "status": "Open"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Exposed Debug Information",
+      "asset": "127.0.0.1",
+      "endpoint": "/debug",
+      "severity": "Low",
+      "cvss": 3.7,
+      "cwe": "CWE-215",
+      "evidence": "The synthetic debug endpoint exposes implementation details in its response.",
+      "impact": "Exposed debug information can provide useful details to an attacker during reconnaissance.",
+      "remediation": "Disable debug output in non-development environments and restrict diagnostic endpoints.",
+      "references": [
+        "https://cwe.mitre.org/data/definitions/215.html"
+      ],
+      "status": "Needs Review",
+      "traceability_ids": [
+        "TRC-XML-002"
+      ],
+      "sources": [
+        {
+          "format": "XML",
+          "record_id": "XML-002",
+          "raw_record": {
+            "source_record_id": "XML-002",
+            "title": "Exposed Debug Information",
+            "asset": "127.0.0.1",
+            "endpoint": "/debug",
+            "severity": "Low",
+            "cvss": "3.7",
+            "cwe": "CWE-215",
+            "evidence": "The synthetic debug endpoint exposes implementation details in its response.",
+            "impact": "Exposed debug information can provide useful details to an attacker during reconnaissance.",
+            "remediation": "Disable debug output in non-development environments and restrict diagnostic endpoints.",
+            "references": "https://cwe.mitre.org/data/definitions/215.html",
+            "status": "Needs Review"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Insecure CORS Configuration",
+      "asset": "127.0.0.1",
+      "endpoint": "/api/data",
+      "severity": "Medium",
+      "cvss": 6.1,
+      "cwe": "CWE-942",
+      "evidence": "The synthetic API response allows an overly broad cross-origin policy.",
+      "impact": "A permissive cross-origin policy may allow unintended origins to access API responses.",
+      "remediation": "Restrict allowed origins to trusted domains and review credential handling.",
+      "references": [
+        "https://cwe.mitre.org/data/definitions/942.html"
+      ],
+      "status": "Open",
+      "traceability_ids": [
+        "TRC-CSV-001"
+      ],
+      "sources": [
+        {
+          "format": "CSV",
+          "record_id": "CSV-001",
+          "raw_record": {
+            "source_record_id": "CSV-001",
+            "title": "Insecure CORS Configuration",
+            "asset": "127.0.0.1",
+            "endpoint": "/api/data",
+            "severity": "Medium",
+            "cvss": "6.1",
+            "cwe": "CWE-942",
+            "evidence": "The synthetic API response allows an overly broad cross-origin policy.",
+            "impact": "A permissive cross-origin policy may allow unintended origins to access API responses.",
+            "remediation": "Restrict allowed origins to trusted domains and review credential handling.",
+            "references": "https://cwe.mitre.org/data/definitions/942.html",
+            "status": "Open"
+          }
+        }
+      ]
+    }
+  ]
+}

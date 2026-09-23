@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<findings>
+    <finding>
+        <source_record_id>BAD-002</source_record_id>
+        <title>Broken XML</title>
+    </finding>

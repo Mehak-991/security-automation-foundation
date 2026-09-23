@@ -1,0 +1,74 @@
+{
+  "report": "Day 3 Parser and Normalizer Validation",
+  "source_counts": {
+    "JSON": 2,
+    "XML": 2,
+    "CSV": 1,
+    "total_source_records": 5
+  },
+  "normalization": {
+    "normalized_before_deduplication": 5,
+    "normalized_after_deduplication": 5
+  },
+  "schema_validation": {
+    "validated_findings": 5,
+    "valid_findings": 5,
+    "all_valid": true,
+    "results": [
+      {
+        "traceability_ids": [
+          "TRC-JSON-001"
+        ],
+        "title": "Reflected XSS in Search Parameter",
+        "valid": true,
+        "errors": []
+      },
+      {
+        "traceability_ids": [
+          "TRC-JSON-002"
+        ],
+        "title": "Weak Authentication Configuration",
+        "valid": true,
+        "errors": []
+      },
+      {
+        "traceability_ids": [
+          "TRC-XML-001"
+        ],
+        "title": "Missing Security Header",
+        "valid": true,
+        "errors": []
+      },
+      {
+        "traceability_ids": [
+          "TRC-XML-002"
+        ],
+        "title": "Exposed Debug Information",
+        "valid": true,
+        "errors": []
+      },
+      {
+        "traceability_ids": [
+          "TRC-CSV-001"
+        ],
+        "title": "Insecure CORS Configuration",
+        "valid": true,
+        "errors": []
+      }
+    ]
+  },
+  "traceability_ids": [
+    "TRC-JSON-001",
+    "TRC-JSON-002",
+    "TRC-XML-001",
+    "TRC-XML-002",
+    "TRC-CSV-001"
+  ],
+  "test_summary": {
+    "malformed_json_test": "PASS",
+    "malformed_xml_test": "PASS",
+    "missing_field_test": "PASS",
+    "invalid_cvss_test": "PASS",
+    "duplicate_handling_test": "PASS"
+  }
+}
