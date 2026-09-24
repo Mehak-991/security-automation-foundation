@@ -1,0 +1,18 @@
+{
+  "run_id": "RUN-20260922-104820",
+  "timestamp": "2026-09-24T05:34:03.315359+00:00",
+  "target": "127.0.0.1",
+  "command": [
+    "nmap",
+    "-sT",
+    "-n",
+    "-p",
+    "1-1000",
+    "127.0.0.1"
+  ],
+  "tool_version": "Nmap version 7.99 ( https://nmap.org )",
+  "scope": "local-lab",
+  "operator": "intern-lab",
+  "evidence_file": "evidence/runs/RUN-20260922-104820_127_0_0_1.json",
+  "sha256": "7240c7ff46725110bfca9c4ae35b6e591ac603ce84998b6bf878508d8c0eb46a"
+}

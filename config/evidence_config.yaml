@@ -1,0 +1,15 @@
+# Evidence capture and storage settings
+
+evidence:
+  root_directory: "evidence"
+  run_directory: "evidence/runs"
+  manifest_directory: "evidence/manifests"
+  package_directory: "evidence/packages"
+  fixture_directory: "tests/fixtures/day4"
+
+  hash_algorithm: "sha256"
+
+  scope: "local-lab"
+  operator: "intern-lab"
+
+  redact_secrets: true

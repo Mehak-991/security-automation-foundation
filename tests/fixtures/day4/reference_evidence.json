@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-09-22T10:48:20.221486+00:00",
+  "run_id": "RUN-20260922-104820",
+  "target": "127.0.0.1",
+  "command": [
+    "nmap",
+    "-sT",
+    "-n",
+    "-p",
+    "1-1000",
+    "127.0.0.1"
+  ],
+  "return_code": 0,
+  "timed_out": false,
+  "tool_version": "Nmap version 7.99 ( https://nmap.org )",
+  "stdout": "Starting Nmap 7.99 ( https://nmap.org ) at 2026-09-22 06:48 -0400\nNmap scan report for 127.0.0.1\nHost is up (0.000067s latency).\nAll 1000 scanned ports on 127.0.0.1 are in ignored states.\nNot shown: 1000 closed tcp ports (conn-refused)\n\nNmap done: 1 IP address (1 host up) scanned in 0.06 seconds\n",
+  "stderr": ""
+}
