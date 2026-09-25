@@ -8,8 +8,8 @@ local/lab security testing.
 The project started with basic configuration, approved-target validation,
 Run ID generation, and structured logging. It was then extended with a safe
 Nmap scanner adapter, parser and normalization components for processing
-scanner findings from multiple data formats, and evidence capture and
-integrity controls.
+scanner findings from multiple data formats, evidence capture and integrity
+controls, and deterministic finding prioritization.
 
 The main goal is to keep the workflow controlled, testable, traceable, and
 auditable while avoiding unrestricted command execution.
@@ -39,6 +39,10 @@ The project currently provides:
 - SHA-256 evidence integrity verification
 - basic secret redaction support
 - reproducibility testing using reference evidence
+- deterministic deduplication
+- CVSS-based severity mapping
+- business-priority scoring
+- human-review controls for uncertain or AI-suggested ratings
 - automated unit tests
 - local/lab execution scope documentation
 
@@ -61,10 +65,10 @@ connect to targets.
 
 The current approved targets are:
 
-- `127.0.0.1`
-- `localhost`
+- 127.0.0.1
+- localhost
 
-A target that is not present in `approved_targets.txt` is rejected.
+A target that is not present in approved_targets.txt is rejected.
 
 ## Day 2 - Scanner Adapter and Safe Execution
 
@@ -72,8 +76,8 @@ Day 2 added a controlled Nmap scanner adapter.
 
 The adapter:
 
-- validates the target against `approved_targets.txt`
-- reads scanner settings from `config/scanner_allowlist.yaml`
+- validates the target against approved_targets.txt
+- reads scanner settings from config/scanner_allowlist.yaml
 - constructs the Nmap command internally
 - does not accept arbitrary scanner arguments
 - applies a 30-second execution timeout
@@ -81,16 +85,14 @@ The adapter:
 - captures stdout and stderr
 - records the process return code
 - records timeout status
-- writes scanner evidence under `evidence/runs/`
-- writes structured execution events to `evidence/run.log`
+- writes scanner evidence under evidence/runs/
+- writes structured execution events to evidence/run.log
 
 ### Controlled Command Format
 
 The current command format is:
 
-```text
 nmap -sT -n -p 1-1000 <approved-target>
-```
 
 The scanner options are controlled by the adapter and configuration rather than
 being supplied as arbitrary command-line arguments.
@@ -112,7 +114,7 @@ Additional controls include:
 
 Detailed safety controls are documented in:
 
-`docs/scanner_adapter_safety.md`
+docs/scanner_adapter_safety.md
 
 ## Day 3 - Output Parsers and Canonical Normalization
 
@@ -120,7 +122,6 @@ Day 3 extends the workflow after scanner execution.
 
 The Day 3 pipeline is:
 
-```text
 JSON / XML / CSV
        |
        v
@@ -143,7 +144,6 @@ JSON Schema Validation
        |
        v
 Normalized Findings
-```
 
 ### Supported Input Formats
 
@@ -155,13 +155,11 @@ The parser layer currently supports:
 
 The Day 3 fixtures contain:
 
-```text
 JSON → 2 records
 XML  → 2 records
 CSV  → 1 record
 -----------------
 Total → 5 records
-```
 
 ### Canonical Finding Structure
 
@@ -187,37 +185,38 @@ Each source record receives a traceability identifier.
 
 Current example format:
 
-```text
 TRC-JSON-001
 TRC-JSON-002
 TRC-XML-001
 TRC-XML-002
 TRC-CSV-001
-```
 
 The source record is preserved with the normalized finding so that the
 normalized result can be traced back to its original input.
 
 ### Duplicate Handling
 
-Duplicate findings are detected using the finding title, asset, and endpoint.
+Day 3 normalization identifies duplicates using the finding title, asset,
+and endpoint.
 
 When duplicate findings are merged, the normalizer preserves the source
 traceability IDs and source records.
+
+Day 5 adds a separate deterministic deduplication layer using:
+
+asset + endpoint + issue_type
 
 ### Validation
 
 The normalized findings are validated against:
 
-`schemas/finding.schema.json`
+schemas/finding.schema.json
 
 The current five fixture findings are all schema-valid:
 
-```text
 Validated findings: 5
 Valid findings: 5
 Schema validation: PASS
-```
 
 ## Day 4 - Evidence Capture and Storage
 
@@ -228,7 +227,6 @@ trace, redact, and reproduce during local/lab testing.
 
 The Day 4 workflow is:
 
-```text
 Saved Evidence
       |
       v
@@ -242,7 +240,6 @@ Evidence Manager
       |
       v
 Controlled Evidence Storage
-```
 
 ### Evidence Handling
 
@@ -274,7 +271,7 @@ The manifest records:
 
 Example manifest file:
 
-`evidence/manifests/RUN-20260922-104820_manifest.json`
+evidence/manifests/RUN-20260922-104820_manifest.json
 
 The manifest references the saved scanner evidence file and stores its
 SHA-256 hash so that the evidence can be checked for unexpected changes.
@@ -289,7 +286,6 @@ the manifest.
 A validation test then compares the manifest hash with the current evidence
 file hash.
 
-```text
 Evidence SHA-256
       |
       v
@@ -297,7 +293,6 @@ Manifest SHA-256
       |
       v
 Hash Match: PASS
-```
 
 ### Secret Redaction
 
@@ -312,22 +307,20 @@ Examples include:
 
 Redacted values are replaced with:
 
-```text
 [REDACTED]
-```
 
 The project does not intentionally store real credentials in the test
 fixtures. Redaction is included as a defensive evidence-handling measure.
 
 Detailed checks are documented in:
 
-`docs/redaction_checklist.md`
+docs/redaction_checklist.md
 
 ### Reproducibility
 
 A reference evidence fixture is maintained under:
 
-`tests/fixtures/day4/reference_evidence.json`
+tests/fixtures/day4/reference_evidence.json
 
 The fixture is used to verify that the expected saved evidence remains
 consistent for testing.
@@ -339,11 +332,10 @@ every test run.
 
 Day 4 uses:
 
-`config/evidence_config.yaml`
+config/evidence_config.yaml
 
 Current configuration includes:
 
-```yaml
 evidence:
   root_directory: "evidence"
   run_directory: "evidence/runs"
@@ -356,15 +348,115 @@ evidence:
   operator: "intern-lab"
 
   redact_secrets: true
-```
 
 The configuration defines the controlled directories, hashing algorithm,
 execution scope, operator label, and redaction setting.
 
+## Day 5 - Deduplication, Severity and Prioritization
+
+Day 5 extends the finding workflow with deterministic deduplication,
+transparent severity rules, business-priority scoring, and human-review
+controls for uncertain or AI-suggested results.
+
+### Deterministic Deduplication
+
+The Day 5 duplicate key is based on:
+
+asset + endpoint + issue_type
+
+The deduplication module keeps the first occurrence of a finding and tracks
+the number of duplicate records found.
+
+Example comparison:
+
+Before deduplication : 4
+After deduplication  : 3
+Duplicates removed   : 1
+
+The retained finding also records its duplicate count.
+
+### Severity Rules
+
+CVSS scores are mapped to qualitative severity using transparent rules:
+
+0.0       → None
+0.1-3.9   → Low
+4.0-6.9   → Medium
+7.0-8.9   → High
+9.0-10.0  → Critical
+
+CVSS values outside the 0.0-10.0 range are rejected.
+
+### Business Priority
+
+Business priority is calculated using three explicit inputs:
+
+- asset importance
+- exploitability
+- exposure
+
+Current scoring values are:
+
+Asset importance:
+critical   → 2
+important  → 1
+normal     → 0
+
+Exploitability:
+confirmed  → 2
+suspected  → 1
+unknown    → 0
+
+Exposure:
+internet   → 2
+internal   → 1
+local      → 0
+
+The total business-priority score is the sum of these three components.
+
+### Human Review
+
+Human review is required when:
+
+- a rating is AI-suggested
+- severity is uncertain
+- business priority is uncertain
+
+Automated results with these conditions are not treated as final without
+human confirmation.
+
+### Day 5 Comparison Output
+
+The Day 5 sample data demonstrates:
+
+Before deduplication : 4
+After deduplication  : 3
+Duplicates removed   : 1
+
+The retained findings include the duplicate count so that the transformation
+remains explainable.
+
+### Reviewer Checklist
+
+The reviewer checklist documents checks for:
+
+- deterministic duplicate keys
+- duplicate removal
+- duplicate-count preservation
+- severity rules
+- business-priority rules
+- invalid-input handling
+- human-review requirements
+- final test and Git review
+
+The checklist is maintained in:
+
+docs/reviewer_checklist.md
+
 ## Error Handling
 
-The parser, normalizer, and evidence components explicitly handle invalid
-input and validation failures.
+The parser, normalizer, evidence, and prioritization components explicitly
+handle invalid input and validation failures.
 
 Current tests cover:
 
@@ -378,46 +470,50 @@ Current tests cover:
 - manifest metadata
 - manifest-to-evidence hash matching
 - reference evidence consistency
+- deterministic duplicate keys
+- duplicate finding removal
+- different endpoint handling
+- different issue type handling
+- CVSS boundary values
+- missing business-context defaults
+- uncertain priority review handling
+- AI-suggested review handling
 
-Invalid input is rejected with a clear parsing or normalization error rather
-than being silently accepted.
+Invalid input is rejected with a clear parsing, normalization, or validation
+error rather than being silently accepted.
 
 ## Evidence and Reports
 
 Day 3 generated normalized output and validation reports under:
 
-```text
 reports/day3/
-```
 
 The directory contains the scripts and generated validation artifacts used to
 demonstrate the parser and normalization workflow.
 
 Important files include:
 
-- `export_normalized.py`
-- `validate_normalized.py`
-- `generate_validation_report.py`
-- `normalized_findings.json`
-- `validation_report.json`
+- export_normalized.py
+- validate_normalized.py
+- generate_validation_report.py
+- normalized_findings.json
+- validation_report.json
+
+Day 5 comparison output is generated using:
+
+reports/day5/dedup_before_after.py
 
 The scanner execution evidence from Day 2 is stored under:
 
-```text
 evidence/runs/
-```
 
 Structured execution and audit events are stored in:
 
-```text
 evidence/run.log
-```
 
 Day 4 evidence manifests are stored under:
 
-```text
 evidence/manifests/
-```
 
 ## Configuration
 
@@ -425,7 +521,7 @@ evidence/manifests/
 
 The main project configuration is:
 
-`config/config.example.yaml`
+config/config.example.yaml
 
 It defines:
 
@@ -442,11 +538,10 @@ It defines:
 
 The scanner configuration is:
 
-`config/scanner_allowlist.yaml`
+config/scanner_allowlist.yaml
 
 Current scanner settings include:
 
-```yaml
 scanner:
   name: nmap
   executable: nmap
@@ -455,29 +550,40 @@ scanner:
   ports: "1-1000"
   timeout_seconds: 30
   output_directory: "evidence/runs"
-```
 
 ### Evidence Configuration
 
 The evidence configuration is:
 
-`config/evidence_config.yaml`
+config/evidence_config.yaml
 
 It defines:
 
 - evidence root directory
 - run directory
 - manifest directory
-- package directory
 - fixture directory
 - hash algorithm
 - scope
 - operator
 - secret redaction setting
 
+### Prioritization Configuration
+
+The Day 5 prioritization configuration is:
+
+config/priority_rules.yaml
+
+It defines:
+
+- CVSS severity thresholds
+- asset-importance scoring
+- exploitability scoring
+- exposure scoring
+- human-review conditions
+
 ## Project Structure
 
-```text
 security_automation_foundation/
 |
 |-- README.md
@@ -488,11 +594,13 @@ security_automation_foundation/
 |   |-- audit_logger.py
 |   |-- create_manifest.py
 |   |-- evidence_manager.py
-|   `-- foundation_check.py
+|   |-- foundation_check.py
+|   `-- prioritizer.py
 |
 |-- config/
 |   |-- config.example.yaml
 |   |-- evidence_config.yaml
+|   |-- priority_rules.yaml
 |   `-- scanner_allowlist.yaml
 |
 |-- adapters/
@@ -517,75 +625,92 @@ security_automation_foundation/
 |
 |-- reports/
 |   |-- .gitkeep
-|   `-- day3/
-|       |-- export_normalized.py
-|       |-- generate_validation_report.py
-|       |-- normalized_findings.json
-|       |-- validate_normalized.py
-|       `-- validation_report.json
+|   |
+|   |-- day3/
+|   |   |-- export_normalized.py
+|   |   |-- generate_validation_report.py
+|   |   |-- normalized_findings.json
+|   |   |-- validate_normalized.py
+|   |   `-- validation_report.json
+|   |
+|   `-- day5/
+|       `-- dedup_before_after.py
 |
 |-- docs/
 |   |-- evidence_capture.md
 |   |-- redaction_checklist.md
+|   |-- reviewer_checklist.md
 |   `-- scanner_adapter_safety.md
 |
 `-- tests/
     |-- fixtures/
     |   |-- nmap_localhost_sample.txt
+    |   |
     |   |-- day3/
     |   |   |-- malformed.json
     |   |   |-- malformed.xml
     |   |   |-- sample_findings.csv
     |   |   |-- sample_findings.json
     |   |   `-- sample_findings.xml
-    |   `-- day4/
-    |       `-- reference_evidence.json
+    |   |
+    |   |-- day4/
+    |   |   `-- reference_evidence.json
+    |   |
+    |   `-- day5/
+    |       `-- sample_findings.json
+    |
     |-- test_day3_duplicates.py
     |-- test_day3_errors.py
     |-- test_day3_parsers.py
+    |-- test_day5_prioritization.py
     |-- test_evidence_capture.py
     |-- test_foundation_check.py
     `-- test_nmap_adapter.py
-```
 
 ## File and Folder Purpose
 
 | Path | Purpose |
 |---|---|
-| `app/foundation_check.py` | Validates project configuration and approved targets |
-| `app/audit_logger.py` | Writes structured JSON audit events |
-| `app/evidence_manager.py` | Creates evidence hashes, redacts common secrets, and creates manifests |
-| `app/create_manifest.py` | Generates a manifest for a saved evidence run |
-| `config/config.example.yaml` | Main project configuration example |
-| `config/evidence_config.yaml` | Evidence storage, hashing, scope, and redaction settings |
-| `config/scanner_allowlist.yaml` | Controlled Nmap scanner configuration |
-| `adapters/base_adapter.py` | Common scanner adapter interface and result model |
-| `adapters/nmap_adapter.py` | Controlled Nmap scanner implementation |
-| `parsers/output_parsers.py` | JSON, XML, and CSV parser implementations |
-| `parsers/normalizer.py` | Canonical finding normalization and deduplication |
-| `schemas/finding.schema.json` | Canonical security finding JSON Schema |
-| `approved_targets.txt` | Explicitly approved targets |
-| `evidence/run.log` | Structured execution audit log |
-| `evidence/runs/` | Generated scanner evidence |
-| `evidence/manifests/` | Evidence metadata and integrity manifests |
-| `reports/day3/export_normalized.py` | Exports normalized findings |
-| `reports/day3/validate_normalized.py` | Validates findings against the schema |
-| `reports/day3/generate_validation_report.py` | Generates the Day 3 validation report |
-| `docs/scanner_adapter_safety.md` | Scanner safety controls and limitations |
-| `docs/evidence_capture.md` | Evidence capture and storage documentation |
-| `docs/redaction_checklist.md` | Evidence redaction checks |
-| `tests/test_foundation_check.py` | Day 1 foundation tests |
-| `tests/test_nmap_adapter.py` | Day 2 scanner adapter tests |
-| `tests/test_day3_parsers.py` | Successful parser tests |
-| `tests/test_day3_errors.py` | Malformed and invalid-input tests |
-| `tests/test_day3_duplicates.py` | Duplicate handling tests |
-| `tests/test_evidence_capture.py` | Day 4 evidence-handling tests |
-| `tests/fixtures/` | Repeatable test fixtures |
-| `tests/fixtures/day4/` | Day 4 evidence reproducibility fixture |
+| app/foundation_check.py | Validates project configuration and approved targets |
+| app/audit_logger.py | Writes structured JSON audit events |
+| app/evidence_manager.py | Creates evidence hashes, redacts common secrets, and creates manifests |
+| app/create_manifest.py | Generates a manifest for a saved evidence run |
+| app/prioritizer.py | Performs deterministic deduplication, severity mapping, business-priority scoring, and human-review checks |
+| config/config.example.yaml | Main project configuration example |
+| config/evidence_config.yaml | Evidence storage, hashing, scope, and redaction settings |
+| config/priority_rules.yaml | Day 5 severity and prioritization rules |
+| config/scanner_allowlist.yaml | Controlled Nmap scanner configuration |
+| adapters/base_adapter.py | Common scanner adapter interface and result model |
+| adapters/nmap_adapter.py | Controlled Nmap scanner implementation |
+| parsers/output_parsers.py | JSON, XML, and CSV parser implementations |
+| parsers/normalizer.py | Canonical finding normalization and deduplication |
+| schemas/finding.schema.json | Canonical security finding JSON Schema |
+| approved_targets.txt | Explicitly approved targets |
+| evidence/run.log | Structured execution audit log |
+| evidence/runs/ | Generated scanner evidence |
+| evidence/manifests/ | Evidence metadata and integrity manifests |
+| reports/day3/export_normalized.py | Exports normalized findings |
+| reports/day3/validate_normalized.py | Validates findings against the schema |
+| reports/day3/generate_validation_report.py | Generates the Day 3 validation report |
+| reports/day5/dedup_before_after.py | Demonstrates Day 5 before/after deduplication |
+| docs/scanner_adapter_safety.md | Scanner safety controls and limitations |
+| docs/evidence_capture.md | Evidence capture and storage documentation |
+| docs/redaction_checklist.md | Evidence redaction checks |
+| docs/reviewer_checklist.md | Day 5 review and approval checklist |
+| tests/test_foundation_check.py | Day 1 foundation tests |
+| tests/test_nmap_adapter.py | Day 2 scanner adapter tests |
+| tests/test_day3_parsers.py | Successful parser tests |
+| tests/test_day3_errors.py | Malformed and invalid-input tests |
+| tests/test_day3_duplicates.py | Duplicate handling tests |
+| tests/test_evidence_capture.py | Day 4 evidence-handling tests |
+| tests/test_day5_prioritization.py | Day 5 deduplication, severity, priority, and review tests |
+| tests/fixtures/ | Repeatable test fixtures |
+| tests/fixtures/day4/ | Day 4 evidence reproducibility fixture |
+| tests/fixtures/day5/sample_findings.json | Day 5 deduplication and prioritization test fixture |
 
 ## Testing
 
-The project uses `pytest` for automated testing.
+The project uses pytest for automated testing.
 
 ### Day 1 Tests
 
@@ -631,13 +756,32 @@ Day 4 tests cover:
 - manifest hash matching
 - reference evidence consistency
 
+### Day 5 Tests
+
+Day 5 tests cover:
+
+- deterministic duplicate keys
+- duplicate finding removal
+- different endpoint handling
+- different issue type handling
+- CVSS severity mapping
+- CVSS boundary values
+- invalid CVSS rejection
+- business-priority scoring
+- missing business-context defaults
+- AI-suggested review handling
+- uncertain severity review handling
+- uncertain business-priority review handling
+
 ### Current Test Result
 
 The complete project test suite currently passes:
 
-```text
+46 passed
+
+The Day 5 test module currently passes:
+
 23 passed
-```
 
 ## Validation Summary
 
@@ -691,17 +835,34 @@ The complete project test suite currently passes:
 - evidence handling documentation completed
 - automated test suite passed
 
+### Day 5
+
+- deterministic duplicate key implemented
+- duplicate before/after comparison implemented
+- duplicate-count tracking implemented
+- transparent CVSS severity rules implemented
+- business-priority scoring implemented
+- AI-suggested result review flag implemented
+- uncertain severity review flag implemented
+- uncertain business-priority review flag implemented
+- edge-case tests implemented
+- reviewer checklist completed
+- automated Day 5 tests passed
+
 ## Current Status
 
 The repository currently contains the foundation, scanner adapter, parser,
-normalizer, validation, evidence capture, integrity, redaction, and testing
-components completed across Days 1–4.
+normalizer, validation, evidence capture, integrity, redaction,
+deduplication, prioritization, human-review controls, and testing components
+completed across Days 1–5.
 
-Current complete test result:
+Current Day 5 test result:
 
-```text
 23 passed
-```
+
+Current complete project test result:
+
+46 passed
 
 ## Scope and Limitations
 
@@ -718,6 +879,12 @@ incomplete data rather than silently accepting it.
 
 Evidence handling is designed for controlled local/lab use and includes basic
 redaction and SHA-256 integrity verification.
+
+Day 5 prioritization is intentionally deterministic and rule-based. Business
+priority depends on the defined asset, exploitability, and exposure inputs.
+
+AI-suggested or uncertain severity and priority values are flagged for human
+review and are not treated as final automatically.
 
 The current evidence workflow does not provide a full enterprise evidence
 management or secrets-management platform. Real credentials and sensitive

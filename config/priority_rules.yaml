@@ -1,0 +1,31 @@
+# Day 5 severity and prioritization rules
+
+severity:
+  cvss:
+    none: 0.0
+    low_max: 3.9
+    medium_max: 6.9
+    high_max: 8.9
+    critical_max: 10.0
+
+business_priority:
+  asset:
+    critical: 2
+    important: 1
+    normal: 0
+
+  exploitability:
+    confirmed: 2
+    suspected: 1
+    unknown: 0
+
+  exposure:
+    internet: 2
+    internal: 1
+    local: 0
+
+human_review:
+  required_when:
+    - ai_suggested
+    - uncertain_severity
+    - uncertain_business_priority

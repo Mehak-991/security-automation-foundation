@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Weak Authentication",
+    "asset": "127.0.0.1",
+    "endpoint": "/login",
+    "issue_type": "weak-authentication",
+    "cvss": 6.5
+  },
+  {
+    "title": "Weak Authentication",
+    "asset": "127.0.0.1",
+    "endpoint": "/login",
+    "issue_type": "weak-authentication",
+    "cvss": 6.5
+  },
+  {
+    "title": "Search XSS",
+    "asset": "127.0.0.1",
+    "endpoint": "/search",
+    "issue_type": "xss",
+    "cvss": 6.1
+  },
+  {
+    "title": "Admin XSS",
+    "asset": "127.0.0.1",
+    "endpoint": "/admin/search",
+    "issue_type": "xss",
+    "cvss": 7.5
+  }
+]
