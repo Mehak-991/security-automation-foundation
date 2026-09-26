@@ -19,6 +19,6 @@
 
 ## Acceptance
 
-- [x] Reviewer confirmed the draft is appropriate for further reporting.
-- [x] Reviewer approval recorded.
+- [ ] Reviewer confirmed the draft is appropriate for further reporting.
+- [ ] Reviewer approval recorded.
 - [x] AI output is not treated as final without human confirmation.
