@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/ai-draft.schema.json",
+  "title": "AI Security Finding Draft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source_trace_id",
+    "title",
+    "summary",
+    "impact",
+    "remediation",
+    "severity",
+    "cvss",
+    "confidence",
+    "reviewer_required",
+    "review_status"
+  ],
+  "properties": {
+    "source_trace_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "impact": {
+      "type": "string",
+      "minLength": 1
+    },
+    "remediation": {
+      "type": "string",
+      "minLength": 1
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "None",
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "cvss": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "reviewer_required": {
+      "const": true
+    },
+    "review_status": {
+      "const": "PENDING_REVIEW"
+    }
+  }
+}

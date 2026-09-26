@@ -1,0 +1,122 @@
+[
+  {
+    "source_trace_id": "TRC-D6-001",
+    "title": "Weak Authentication",
+    "summary": "Security finding identified on 127.0.0.1 at /login.",
+    "impact": "Weak authentication controls may increase unauthorized access risk.",
+    "remediation": "Strengthen authentication controls and enforce secure password policy.",
+    "severity": "Medium",
+    "cvss": 5.3,
+    "confidence": 0.9,
+    "reviewer_required": true,
+    "review_status": "PENDING_REVIEW"
+  },
+  {
+    "source_trace_id": "TRC-D6-002",
+    "title": "Cross-Site Scripting",
+    "summary": "Security finding identified on 127.0.0.1 at /search.",
+    "impact": "Injected browser-side content may affect application users.",
+    "remediation": "Apply output encoding and validate user-controlled input.",
+    "severity": "High",
+    "cvss": 8.0,
+    "confidence": 0.9,
+    "reviewer_required": true,
+    "review_status": "PENDING_REVIEW"
+  },
+  {
+    "source_trace_id": "TRC-D6-003",
+    "title": "Missing Security Header",
+    "summary": "Security finding identified on localhost at /.",
+    "impact": "Missing security headers may reduce browser-side protection.",
+    "remediation": "Configure the recommended HTTP security headers.",
+    "severity": "Low",
+    "cvss": 3.1,
+    "confidence": 0.9,
+    "reviewer_required": true,
+    "review_status": "PENDING_REVIEW"
+  },
+  {
+    "source_trace_id": "TRC-D6-004",
+    "title": "Insecure Direct Object Reference",
+    "summary": "Security finding identified on 127.0.0.1 at /basket/1.",
+    "impact": "Insufficient authorization may expose another user's resource.",
+    "remediation": "Enforce server-side authorization for every resource access.",
+    "severity": "High",
+    "cvss": 8.1,
+    "confidence": 0.9,
+    "reviewer_required": true,
+    "review_status": "PENDING_REVIEW"
+  },
+  {
+    "source_trace_id": "TRC-D6-005",
+    "title": "Verbose Error Message",
+    "summary": "Security finding identified on localhost at /api/error.",
+    "impact": "Verbose errors may disclose implementation details.",
+    "remediation": "Return generic client-facing errors and log details securely.",
+    "severity": "Low",
+    "cvss": 2.7,
+    "confidence": 0.9,
+    "reviewer_required": true,
+    "review_status": "PENDING_REVIEW"
+  },
+  {
+    "source_trace_id": "TRC-D6-006",
+    "title": "Missing Rate Limiting",
+    "summary": "Security finding identified on 127.0.0.1 at /api/login.",
+    "impact": "Lack of rate limiting may increase automated abuse risk.",
+    "remediation": "Apply appropriate request throttling and account protections.",
+    "severity": "Medium",
+    "cvss": 6.2,
+    "confidence": 0.9,
+    "reviewer_required": true,
+    "review_status": "PENDING_REVIEW"
+  },
+  {
+    "source_trace_id": "TRC-D6-007",
+    "title": "Sensitive Data Exposure",
+    "summary": "Security finding identified on localhost at /api/profile.",
+    "impact": "Sensitive information may be disclosed through an application response.",
+    "remediation": "Limit returned fields and enforce data access controls.",
+    "severity": "High",
+    "cvss": 7.5,
+    "confidence": 0.9,
+    "reviewer_required": true,
+    "review_status": "PENDING_REVIEW"
+  },
+  {
+    "source_trace_id": "TRC-D6-008",
+    "title": "Improper Input Validation",
+    "summary": "Security finding identified on 127.0.0.1 at /api/search.",
+    "impact": "Insufficient input validation may allow unexpected application behavior.",
+    "remediation": "Validate input against strict expected formats and constraints.",
+    "severity": "Medium",
+    "cvss": 5.8,
+    "confidence": 0.9,
+    "reviewer_required": true,
+    "review_status": "PENDING_REVIEW"
+  },
+  {
+    "source_trace_id": "TRC-D6-009",
+    "title": "Session Cookie Misconfiguration",
+    "summary": "Security finding identified on localhost at /session.",
+    "impact": "Weak session cookie settings may increase session compromise risk.",
+    "remediation": "Use Secure, HttpOnly, and appropriate SameSite cookie settings.",
+    "severity": "Medium",
+    "cvss": 5.4,
+    "confidence": 0.9,
+    "reviewer_required": true,
+    "review_status": "PENDING_REVIEW"
+  },
+  {
+    "source_trace_id": "TRC-D6-010",
+    "title": "Unnecessary Service Exposure",
+    "summary": "Security finding identified on 127.0.0.1 at /service.",
+    "impact": "Unnecessary exposed functionality can increase attack surface.",
+    "remediation": "Disable unused functionality and restrict exposed services.",
+    "severity": "Low",
+    "cvss": 3.5,
+    "confidence": 0.9,
+    "reviewer_required": true,
+    "review_status": "PENDING_REVIEW"
+  }
+]

@@ -9,7 +9,8 @@ The project started with basic configuration, approved-target validation,
 Run ID generation, and structured logging. It was then extended with a safe
 Nmap scanner adapter, parser and normalization components for processing
 scanner findings from multiple data formats, evidence capture and integrity
-controls, and deterministic finding prioritization.
+controls, deterministic finding prioritization, and a controlled AI drafting
+layer.
 
 The main goal is to keep the workflow controlled, testable, traceable, and
 auditable while avoiding unrestricted command execution.
@@ -43,6 +44,14 @@ The project currently provides:
 - CVSS-based severity mapping
 - business-priority scoring
 - human-review controls for uncertain or AI-suggested ratings
+- controlled AI drafting
+- structured prompt construction
+- prompt-injection detection and rejection
+- sensitive-data redaction before AI prompting
+- AI output JSON Schema validation
+- mandatory human-review enforcement
+- deterministic local AI mock provider
+- approved HTTP LLM/API adapter
 - automated unit tests
 - local/lab execution scope documentation
 
@@ -453,10 +462,278 @@ The checklist is maintained in:
 
 docs/reviewer_checklist.md
 
+## Day 6 - AI Drafting Layer
+
+Day 6 adds a controlled AI drafting layer for converting normalized security
+findings into structured security-report drafts.
+
+The workflow is designed to protect sensitive data, reject prompt-injection
+content, validate AI output against a JSON Schema, and require human review
+before final acceptance.
+
+### Day 6 Workflow
+
+Normalized Finding
+       |
+       v
+Sensitive Data Redaction
+       |
+       v
+Prompt-Injection Guard
+       |
+       v
+Structured Prompt
+       |
+       v
+Approved LLM/API
+       |
+       v
+JSON Draft
+       |
+       v
+JSON Schema Validation
+       |
+       v
+Human Review
+       |
+       v
+Accepted Draft
+
+### AI Drafting Module
+
+The main AI drafting implementation is:
+
+app/ai_drafter.py
+
+The module provides:
+
+- structured prompt construction
+- sensitive-data redaction before prompting
+- prompt-injection detection
+- JSON draft generation
+- JSON Schema validation
+- mandatory human-review enforcement
+- deterministic local mock provider
+- approved HTTP API adapter
+
+### Prompt Safety
+
+Prompt-injection protection is implemented in:
+
+app/prompt_guard.py
+
+The guard checks for common instruction-override and jailbreak-style patterns.
+
+Detected prompt-injection content is rejected before AI draft generation.
+
+### Sensitive Data Protection
+
+Sensitive values are redacted before prompt construction.
+
+The current protection covers common patterns such as:
+
+- Bearer authorization tokens
+- API keys
+- password-like values
+- secret-like values
+
+Redacted values are replaced with:
+
+[REDACTED]
+
+No real credentials are intentionally included in the Day 6 fixtures.
+
+### Structured Prompt
+
+The prompt instructs the drafting layer to:
+
+- act as an authorized security-report drafting assistant
+- create a concise security finding draft
+- return JSON only
+- treat finding data as untrusted content
+- avoid inventing technical facts
+- require human review before final acceptance
+
+### Structured Output and Schema Validation
+
+AI drafts are validated against:
+
+schemas/ai_draft.schema.json
+
+The schema validates:
+
+- source trace ID
+- title
+- summary
+- impact
+- remediation
+- severity
+- CVSS
+- confidence
+- reviewer-required flag
+- pending-review status
+
+The schema also restricts severity values and CVSS/confidence ranges.
+
+### Day 6 Sample Data
+
+The Day 6 fixture contains 10 synthetic normalized security findings:
+
+tests/fixtures/day6/sample_normalized_findings.json
+
+The findings use trace IDs:
+
+TRC-D6-001
+TRC-D6-002
+TRC-D6-003
+TRC-D6-004
+TRC-D6-005
+TRC-D6-006
+TRC-D6-007
+TRC-D6-008
+TRC-D6-009
+TRC-D6-010
+
+### AI Draft Evidence
+
+The Day 6 drafting script is:
+
+reports/day6/generate_drafts.py
+
+The generated evidence includes:
+
+- reports/day6/ai_drafts.json
+- reports/day6/schema_validation_report.json
+
+Validation result:
+
+Input findings    : 10
+Drafts generated  : 10
+Schema validation : 10/10 PASS
+Human review      : REQUIRED
+
+### Prompt-Injection Testing
+
+Prompt-injection test cases are stored in:
+
+tests/fixtures/day6/prompt_injection_cases.json
+
+The test execution script is:
+
+reports/day6/run_injection_tests.py
+
+Current result:
+
+Prompt-injection cases : 5
+Passed                 : 5
+Failed                 : 0
+
+The generated report is:
+
+reports/day6/injection_test_report.json
+
+### Human Review
+
+AI-generated output is treated as a draft only.
+
+Every generated draft requires:
+
+reviewer_required = true
+
+and:
+
+review_status = PENDING_REVIEW
+
+A draft must be reviewed by a human before it can be accepted as a final
+security report finding.
+
+The Day 6 human-review checklist is:
+
+docs/human_review_checklist.md
+
+### AI Configuration
+
+Day 6 configuration is maintained in:
+
+config/ai_config.yaml
+
+The current local testing provider is:
+
+mock
+
+The configuration also documents:
+
+- approved API environment variables
+- structured output requirement
+- schema file
+- human-review requirement
+- sensitive-data redaction
+- prompt-injection detection
+- local testing without network access
+- no real credentials required for local tests
+
+### Local Testing Provider
+
+A deterministic mock provider is included for local development and testing.
+
+The mock provider:
+
+- does not require an external API
+- does not require a real API key
+- does not require internet access
+- produces repeatable structured results
+
+This allows the drafting workflow to be validated safely in the local/lab
+environment.
+
+### Approved LLM/API Adapter
+
+The project also provides an HTTP API adapter for an approved LLM endpoint.
+
+Configuration is supplied through environment variables:
+
+- APPROVED_LLM_API_URL
+- APPROVED_LLM_API_KEY
+- APPROVED_LLM_MODEL
+- APPROVED_LLM_TIMEOUT
+
+Credentials are not hard-coded into the repository.
+
+The API request includes a structured JSON payload and uses a configurable
+request timeout.
+
+### Day 6 Testing
+
+The Day 6 test module is:
+
+tests/test_day6_ai_drafting.py
+
+Current Day 6 test result:
+
+14 passed
+
+The complete project regression result after Day 6 is:
+
+60 passed
+
+### Day 6 Validation Summary
+
+- 10 synthetic normalized findings prepared
+- structured AI drafting workflow implemented
+- sensitive-data redaction implemented
+- prompt-injection detection implemented
+- prompt-injection rejection verified
+- JSON Schema validation implemented
+- 10/10 AI drafts validated successfully
+- human-review enforcement implemented
+- 5/5 prompt-injection test cases passed
+- Day 6 automated tests passed
+- complete project regression tests passed
+
 ## Error Handling
 
-The parser, normalizer, evidence, and prioritization components explicitly
-handle invalid input and validation failures.
+The parser, normalizer, evidence, prioritization, and AI drafting components
+explicitly handle invalid input and validation failures.
 
 Current tests cover:
 
@@ -478,9 +755,15 @@ Current tests cover:
 - missing business-context defaults
 - uncertain priority review handling
 - AI-suggested review handling
+- prompt-injection detection
+- prompt-injection rejection
+- AI output schema validation
+- sensitive-value redaction before prompt generation
+- mandatory human-review enforcement
+- invalid provider handling
 
-Invalid input is rejected with a clear parsing, normalization, or validation
-error rather than being silently accepted.
+Invalid input is rejected with a clear parsing, normalization, security, or
+validation error rather than being silently accepted.
 
 ## Evidence and Reports
 
@@ -502,6 +785,18 @@ Important files include:
 Day 5 comparison output is generated using:
 
 reports/day5/dedup_before_after.py
+
+Day 6 AI drafting evidence is generated under:
+
+reports/day6/
+
+Important Day 6 files include:
+
+- generate_drafts.py
+- run_injection_tests.py
+- ai_drafts.json
+- schema_validation_report.json
+- injection_test_report.json
 
 The scanner execution evidence from Day 2 is stored under:
 
@@ -582,6 +877,29 @@ It defines:
 - exposure scoring
 - human-review conditions
 
+### AI Configuration
+
+The Day 6 AI configuration is:
+
+config/ai_config.yaml
+
+It defines:
+
+- local mock provider
+- approved API environment variable names
+- structured output requirement
+- AI draft schema
+- mandatory human review
+- sensitive-data redaction
+- prompt-injection detection
+- prompt-injection rejection
+- local testing controls
+
+Current local configuration uses:
+
+ai:
+  provider: "mock"
+
 ## Project Structure
 
 security_automation_foundation/
@@ -592,12 +910,15 @@ security_automation_foundation/
 |
 |-- app/
 |   |-- audit_logger.py
+|   |-- ai_drafter.py
 |   |-- create_manifest.py
 |   |-- evidence_manager.py
 |   |-- foundation_check.py
-|   `-- prioritizer.py
+|   |-- prioritizer.py
+|   `-- prompt_guard.py
 |
 |-- config/
+|   |-- ai_config.yaml
 |   |-- config.example.yaml
 |   |-- evidence_config.yaml
 |   |-- priority_rules.yaml
@@ -614,6 +935,7 @@ security_automation_foundation/
 |   `-- normalizer.py
 |
 |-- schemas/
+|   |-- ai_draft.schema.json
 |   `-- finding.schema.json
 |
 |-- evidence/
@@ -633,11 +955,20 @@ security_automation_foundation/
 |   |   |-- validate_normalized.py
 |   |   `-- validation_report.json
 |   |
-|   `-- day5/
-|       `-- dedup_before_after.py
+|   |-- day5/
+|   |   `-- dedup_before_after.py
+|   |
+|   `-- day6/
+|       |-- ai_drafts.json
+|       |-- generate_drafts.py
+|       |-- injection_test_report.json
+|       |-- run_injection_tests.py
+|       `-- schema_validation_report.json
 |
 |-- docs/
+|   |-- ai_drafting.md
 |   |-- evidence_capture.md
+|   |-- human_review_checklist.md
 |   |-- redaction_checklist.md
 |   |-- reviewer_checklist.md
 |   `-- scanner_adapter_safety.md
@@ -656,13 +987,18 @@ security_automation_foundation/
     |   |-- day4/
     |   |   `-- reference_evidence.json
     |   |
-    |   `-- day5/
-    |       `-- sample_findings.json
+    |   |-- day5/
+    |   |   `-- sample_findings.json
+    |   |
+    |   `-- day6/
+    |       |-- prompt_injection_cases.json
+    |       `-- sample_normalized_findings.json
     |
     |-- test_day3_duplicates.py
     |-- test_day3_errors.py
     |-- test_day3_parsers.py
     |-- test_day5_prioritization.py
+    |-- test_day6_ai_drafting.py
     |-- test_evidence_capture.py
     |-- test_foundation_check.py
     `-- test_nmap_adapter.py
@@ -676,15 +1012,19 @@ security_automation_foundation/
 | app/evidence_manager.py | Creates evidence hashes, redacts common secrets, and creates manifests |
 | app/create_manifest.py | Generates a manifest for a saved evidence run |
 | app/prioritizer.py | Performs deterministic deduplication, severity mapping, business-priority scoring, and human-review checks |
+| app/prompt_guard.py | Detects prompt-injection patterns and redacts common sensitive values |
+| app/ai_drafter.py | Builds structured prompts, generates AI drafts, validates output, and enforces human review |
 | config/config.example.yaml | Main project configuration example |
 | config/evidence_config.yaml | Evidence storage, hashing, scope, and redaction settings |
 | config/priority_rules.yaml | Day 5 severity and prioritization rules |
+| config/ai_config.yaml | Day 6 AI provider, safety, schema, and human-review configuration |
 | config/scanner_allowlist.yaml | Controlled Nmap scanner configuration |
 | adapters/base_adapter.py | Common scanner adapter interface and result model |
 | adapters/nmap_adapter.py | Controlled Nmap scanner implementation |
 | parsers/output_parsers.py | JSON, XML, and CSV parser implementations |
 | parsers/normalizer.py | Canonical finding normalization and deduplication |
 | schemas/finding.schema.json | Canonical security finding JSON Schema |
+| schemas/ai_draft.schema.json | JSON Schema for AI-generated security finding drafts |
 | approved_targets.txt | Explicitly approved targets |
 | evidence/run.log | Structured execution audit log |
 | evidence/runs/ | Generated scanner evidence |
@@ -693,10 +1033,17 @@ security_automation_foundation/
 | reports/day3/validate_normalized.py | Validates findings against the schema |
 | reports/day3/generate_validation_report.py | Generates the Day 3 validation report |
 | reports/day5/dedup_before_after.py | Demonstrates Day 5 before/after deduplication |
+| reports/day6/generate_drafts.py | Generates structured AI drafts from synthetic findings |
+| reports/day6/run_injection_tests.py | Runs prompt-injection test cases |
+| reports/day6/ai_drafts.json | Generated Day 6 AI drafts |
+| reports/day6/schema_validation_report.json | Day 6 AI draft schema-validation results |
+| reports/day6/injection_test_report.json | Day 6 prompt-injection test results |
 | docs/scanner_adapter_safety.md | Scanner safety controls and limitations |
 | docs/evidence_capture.md | Evidence capture and storage documentation |
 | docs/redaction_checklist.md | Evidence redaction checks |
 | docs/reviewer_checklist.md | Day 5 review and approval checklist |
+| docs/ai_drafting.md | Day 6 AI drafting workflow and safety documentation |
+| docs/human_review_checklist.md | Day 6 human-review checklist |
 | tests/test_foundation_check.py | Day 1 foundation tests |
 | tests/test_nmap_adapter.py | Day 2 scanner adapter tests |
 | tests/test_day3_parsers.py | Successful parser tests |
@@ -704,9 +1051,12 @@ security_automation_foundation/
 | tests/test_day3_duplicates.py | Duplicate handling tests |
 | tests/test_evidence_capture.py | Day 4 evidence-handling tests |
 | tests/test_day5_prioritization.py | Day 5 deduplication, severity, priority, and review tests |
+| tests/test_day6_ai_drafting.py | Day 6 AI drafting, redaction, prompt-injection, schema, and review tests |
 | tests/fixtures/ | Repeatable test fixtures |
 | tests/fixtures/day4/ | Day 4 evidence reproducibility fixture |
 | tests/fixtures/day5/sample_findings.json | Day 5 deduplication and prioritization test fixture |
+| tests/fixtures/day6/sample_normalized_findings.json | Day 6 synthetic normalized findings |
+| tests/fixtures/day6/prompt_injection_cases.json | Day 6 prompt-injection test cases |
 
 ## Testing
 
@@ -773,15 +1123,31 @@ Day 5 tests cover:
 - uncertain severity review handling
 - uncertain business-priority review handling
 
+### Day 6 Tests
+
+Day 6 tests cover:
+
+- ten synthetic findings fixture
+- structured prompt construction
+- AI mock draft generation
+- AI draft schema validation
+- prompt-injection detection
+- prompt-injection rejection
+- sensitive-value redaction
+- redaction before prompt generation
+- human-review enforcement
+- invalid provider handling
+- five prompt-injection fixture cases
+
 ### Current Test Result
 
 The complete project test suite currently passes:
 
-46 passed
+60 passed
 
-The Day 5 test module currently passes:
+The Day 6 test module currently passes:
 
-23 passed
+14 passed
 
 ## Validation Summary
 
@@ -849,20 +1215,38 @@ The Day 5 test module currently passes:
 - reviewer checklist completed
 - automated Day 5 tests passed
 
+### Day 6
+
+- synthetic normalized findings prepared
+- structured AI drafting workflow implemented
+- sensitive-data redaction implemented
+- prompt-injection detection implemented
+- prompt-injection rejection verified
+- structured prompt construction implemented
+- JSON Schema validation implemented
+- ten AI drafts generated
+- ten out of ten AI drafts passed schema validation
+- mandatory human review enforced
+- five out of five prompt-injection cases passed
+- Day 6 documentation completed
+- human-review checklist completed
+- Day 6 automated tests passed
+- complete project regression tests passed
+
 ## Current Status
 
 The repository currently contains the foundation, scanner adapter, parser,
 normalizer, validation, evidence capture, integrity, redaction,
-deduplication, prioritization, human-review controls, and testing components
-completed across Days 1–5.
+deduplication, prioritization, human-review controls, AI drafting, prompt
+safety, schema validation, and testing components completed across Days 1–6.
 
-Current Day 5 test result:
+Current Day 6 test result:
 
-23 passed
+14 passed
 
 Current complete project test result:
 
-46 passed
+60 passed
 
 ## Scope and Limitations
 
@@ -883,10 +1267,15 @@ redaction and SHA-256 integrity verification.
 Day 5 prioritization is intentionally deterministic and rule-based. Business
 priority depends on the defined asset, exploitability, and exposure inputs.
 
-AI-suggested or uncertain severity and priority values are flagged for human
-review and are not treated as final automatically.
+The Day 6 AI drafting workflow uses a deterministic local mock provider for
+repeatable testing. The approved API adapter should only be used with an
+authorized LLM/API endpoint.
 
-The current evidence workflow does not provide a full enterprise evidence
-management or secrets-management platform. Real credentials and sensitive
-production data should not be placed in test fixtures or committed to the
-repository.
+Sensitive data is redacted before prompt construction, and prompt-injection
+content is rejected by the safety guard.
+
+AI-generated drafts are not treated as authoritative or final automatically.
+Human review is required before acceptance into a final security report.
+
+Real credentials and sensitive production data should not be placed in test
+fixtures or committed to the repository.

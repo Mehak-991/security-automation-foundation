@@ -1,0 +1,67 @@
+{
+  "total_findings": 10,
+  "drafts_generated": 10,
+  "schema_valid": 10,
+  "results": [
+    {
+      "trace_id": "TRC-D6-001",
+      "schema_validation": "PASS",
+      "reviewer_required": true,
+      "review_status": "PENDING_REVIEW"
+    },
+    {
+      "trace_id": "TRC-D6-002",
+      "schema_validation": "PASS",
+      "reviewer_required": true,
+      "review_status": "PENDING_REVIEW"
+    },
+    {
+      "trace_id": "TRC-D6-003",
+      "schema_validation": "PASS",
+      "reviewer_required": true,
+      "review_status": "PENDING_REVIEW"
+    },
+    {
+      "trace_id": "TRC-D6-004",
+      "schema_validation": "PASS",
+      "reviewer_required": true,
+      "review_status": "PENDING_REVIEW"
+    },
+    {
+      "trace_id": "TRC-D6-005",
+      "schema_validation": "PASS",
+      "reviewer_required": true,
+      "review_status": "PENDING_REVIEW"
+    },
+    {
+      "trace_id": "TRC-D6-006",
+      "schema_validation": "PASS",
+      "reviewer_required": true,
+      "review_status": "PENDING_REVIEW"
+    },
+    {
+      "trace_id": "TRC-D6-007",
+      "schema_validation": "PASS",
+      "reviewer_required": true,
+      "review_status": "PENDING_REVIEW"
+    },
+    {
+      "trace_id": "TRC-D6-008",
+      "schema_validation": "PASS",
+      "reviewer_required": true,
+      "review_status": "PENDING_REVIEW"
+    },
+    {
+      "trace_id": "TRC-D6-009",
+      "schema_validation": "PASS",
+      "reviewer_required": true,
+      "review_status": "PENDING_REVIEW"
+    },
+    {
+      "trace_id": "TRC-D6-010",
+      "schema_validation": "PASS",
+      "reviewer_required": true,
+      "review_status": "PENDING_REVIEW"
+    }
+  ]
+}

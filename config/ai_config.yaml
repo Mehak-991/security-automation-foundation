@@ -1,0 +1,25 @@
+# Day 6 AI Drafting Configuration
+
+ai:
+  provider: "mock"
+
+  approved_api:
+    endpoint_env: "APPROVED_LLM_API_URL"
+    api_key_env: "APPROVED_LLM_API_KEY"
+    model_env: "APPROVED_LLM_MODEL"
+    timeout_env: "APPROVED_LLM_TIMEOUT"
+
+  drafting:
+    structured_output: true
+    schema_file: "schemas/ai_draft.schema.json"
+    human_review_required: true
+
+  safety:
+    redact_sensitive_data: true
+    prompt_injection_detection: true
+    reject_on_injection: true
+
+  local_testing:
+    mock_provider_enabled: true
+    network_required: false
+    real_credentials_required: false

@@ -1,0 +1,102 @@
+[
+  {
+    "trace_id": "TRC-D6-001",
+    "title": "Weak Authentication",
+    "asset": "127.0.0.1",
+    "endpoint": "/login",
+    "severity": "Medium",
+    "cvss": 5.3,
+    "impact": "Weak authentication controls may increase unauthorized access risk.",
+    "remediation": "Strengthen authentication controls and enforce secure password policy."
+  },
+  {
+    "trace_id": "TRC-D6-002",
+    "title": "Cross-Site Scripting",
+    "asset": "127.0.0.1",
+    "endpoint": "/search",
+    "severity": "High",
+    "cvss": 8.0,
+    "impact": "Injected browser-side content may affect application users.",
+    "remediation": "Apply output encoding and validate user-controlled input."
+  },
+  {
+    "trace_id": "TRC-D6-003",
+    "title": "Missing Security Header",
+    "asset": "localhost",
+    "endpoint": "/",
+    "severity": "Low",
+    "cvss": 3.1,
+    "impact": "Missing security headers may reduce browser-side protection.",
+    "remediation": "Configure the recommended HTTP security headers."
+  },
+  {
+    "trace_id": "TRC-D6-004",
+    "title": "Insecure Direct Object Reference",
+    "asset": "127.0.0.1",
+    "endpoint": "/basket/1",
+    "severity": "High",
+    "cvss": 8.1,
+    "impact": "Insufficient authorization may expose another user's resource.",
+    "remediation": "Enforce server-side authorization for every resource access."
+  },
+  {
+    "trace_id": "TRC-D6-005",
+    "title": "Verbose Error Message",
+    "asset": "localhost",
+    "endpoint": "/api/error",
+    "severity": "Low",
+    "cvss": 2.7,
+    "impact": "Verbose errors may disclose implementation details.",
+    "remediation": "Return generic client-facing errors and log details securely."
+  },
+  {
+    "trace_id": "TRC-D6-006",
+    "title": "Missing Rate Limiting",
+    "asset": "127.0.0.1",
+    "endpoint": "/api/login",
+    "severity": "Medium",
+    "cvss": 6.2,
+    "impact": "Lack of rate limiting may increase automated abuse risk.",
+    "remediation": "Apply appropriate request throttling and account protections."
+  },
+  {
+    "trace_id": "TRC-D6-007",
+    "title": "Sensitive Data Exposure",
+    "asset": "localhost",
+    "endpoint": "/api/profile",
+    "severity": "High",
+    "cvss": 7.5,
+    "impact": "Sensitive information may be disclosed through an application response.",
+    "remediation": "Limit returned fields and enforce data access controls."
+  },
+  {
+    "trace_id": "TRC-D6-008",
+    "title": "Improper Input Validation",
+    "asset": "127.0.0.1",
+    "endpoint": "/api/search",
+    "severity": "Medium",
+    "cvss": 5.8,
+    "impact": "Insufficient input validation may allow unexpected application behavior.",
+    "remediation": "Validate input against strict expected formats and constraints."
+  },
+  {
+    "trace_id": "TRC-D6-009",
+    "title": "Session Cookie Misconfiguration",
+    "asset": "localhost",
+    "endpoint": "/session",
+    "severity": "Medium",
+    "cvss": 5.4,
+    "impact": "Weak session cookie settings may increase session compromise risk.",
+    "remediation": "Use Secure, HttpOnly, and appropriate SameSite cookie settings."
+  },
+  {
+    "trace_id": "TRC-D6-010",
+    "title": "Unnecessary Service Exposure",
+    "asset": "127.0.0.1",
+    "endpoint": "/service",
+    "severity": "Low",
+    "cvss": 3.5,
+    "impact": "Unnecessary exposed functionality can increase attack surface.",
+    "remediation": "Disable unused functionality and restrict exposed services."
+  }
+]

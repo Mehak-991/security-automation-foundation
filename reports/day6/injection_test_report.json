@@ -1,0 +1,42 @@
+{
+  "total_cases": 5,
+  "passed": 5,
+  "failed": 0,
+  "results": [
+    {
+      "id": "INJ-001",
+      "detected": true,
+      "expected": true,
+      "result": "PASS",
+      "reason": "\\bignore\\s+(all\\s+)?previous\\s+instructions\\b"
+    },
+    {
+      "id": "INJ-002",
+      "detected": true,
+      "expected": true,
+      "result": "PASS",
+      "reason": "\\bdisregard\\s+(all\\s+)?previous\\s+instructions\\b"
+    },
+    {
+      "id": "INJ-003",
+      "detected": true,
+      "expected": true,
+      "result": "PASS",
+      "reason": "\\bforget\\s+(all\\s+)?previous\\s+instructions\\b"
+    },
+    {
+      "id": "INJ-004",
+      "detected": true,
+      "expected": true,
+      "result": "PASS",
+      "reason": "\\breveal\\s+(the\\s+)?secret\\b"
+    },
+    {
+      "id": "INJ-005",
+      "detected": true,
+      "expected": true,
+      "result": "PASS",
+      "reason": "\\bjailbreak\\b"
+    }
+  ]
+}
